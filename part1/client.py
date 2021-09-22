@@ -10,8 +10,9 @@ args = parser.parse_args()
 my_ip = args.ip
 my_port = args.port
 
+print(socket.gethostname())
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((socket.gethostname(), my_port))
+s.connect((my_ip, my_port))
 
 test_message = "Part 1 test message"
 
