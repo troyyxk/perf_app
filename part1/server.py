@@ -1,6 +1,11 @@
 import socket
+import sys
 
-my_port = 58989
+if len(sys.argv) != 2:
+    print("Require a port number, 1 command line arguement2")
+    exit(1)
+
+my_port = int(sys.argv[1])
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(("0.0.0.0", my_port))
