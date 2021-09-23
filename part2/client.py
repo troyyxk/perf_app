@@ -1,6 +1,52 @@
+# \n in python
+# how to get the data size
 import argparse
 import socket
 import sys
+
+def test_rtt(s, number_of_probes, message_size, server_delay):
+    time_durations = []
+    # CSP phase
+    CSP_message = "s rtt " + str(number_of_probes) + " " + str(message_size) + " " + str(server_delay) + "\n"
+    s.send(bytes(CSP_message, "utf-8"))
+    return_message = s.recv(1024).decode("utf-8")
+    # TODO: delete testing prints
+    print("In CSP phase")
+    print(return_message)
+    if return_message != "200 OK: Ready":
+        return "error"
+
+    # MP phase
+    # TODO: delete testing prints
+    print("In CTP phase")
+    for i in range(number_of_probes):
+        MP_message = "m " + str(i+1) + " " + ("1"*message_size) + "\n"
+        s.send(bytes(MP_message, "utf-8"))
+        return_message = s.recv(1024).decode("utf-8")
+        print(return_message)
+
+
+    # CTP phase
+    print("In CTP phase")
+    s.send(bytes("t\n", "utf-8"))
+    return_message = s.recv(1024).decode("utf-8")
+    print(return_message)
+    if return_message != "200 OK: Closing Connection":
+        return "error"
+    
+    print("close connection with no error")
+
+    return time_durations
+    
+
+
+
+
+def test_tput(s, number_of_probes, message_size, server_delay):
+    time_durations = []
+    # CSP phase
+    # MP phase
+    # CTP phase
 
 # parser = argparse.ArgumentParser()
 # parser.add_argument("--ip", help="ip address", type=str, required=True)
@@ -15,11 +61,6 @@ my_ip = sys.argv[1]
 my_port = int(sys.argv[2])
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((socket.gethostbyname(my_ip), my_port))
+s.connect((my_ip, my_port))
+test_rtt(s, 10, 1, 0)
 
-test_message = "Part 1 test message"
-
-s.send(bytes(test_message, "utf-8"))
-
-return_mesage = s.recv(1024)
-print(return_mesage.decode("utf-8"))
