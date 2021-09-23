@@ -81,8 +81,7 @@ while True:
             break
         probe_sequence_number = int(probe_sequence_number)
         if protocol_phase != 'm' or \
-            probe_sequence_number != i + 1 or \
-                payload[-1] != '\n':
+            probe_sequence_number != i + 1:
             mp_has_error = True
             break
         clientsocket.send(bytes(MP_message + '\n', "utf-8"))
@@ -94,7 +93,7 @@ while True:
 
     # CTP phase
     CTP_message = loop_resv(clientsocket)
-    if len(CTP_message) != 2 or CTP_message[0] != 't' or CTP_message[1] != '\n':
+    if len(CTP_message) != 1 or CTP_message[0] != 't':
         clientsocket.send(bytes(CTP_error_message, "utf-8"))
     else:
         clientsocket.send(bytes(CTP_success_message, "utf-8"))
