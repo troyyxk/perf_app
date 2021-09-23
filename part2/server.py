@@ -4,6 +4,18 @@ import sys
 from typing import Protocol
 import time
 
+
+def loop_resv(s):
+    received_message = ""
+    while (True):
+        cur_message = s.recv(1024).decode("utf-8")
+        received_message += cur_message
+        if '\n' in cur_message:
+            break
+    assert received_message[-1] == '\n'
+    received_message = received_message.split('\n')[0]
+    return received_message
+
 if len(sys.argv) != 2:
     print("Require a port number, 1 command line arguement2")
     exit(1)
@@ -14,17 +26,16 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(("0.0.0.0", my_port))
 s.listen(5)
 
-CSP_success_message = "200 OK: Ready"
-CSP_error_message = "404 ERROR: Invalid Connection Setup Message"
-MP_error_message = "404 ERROR: Invalid Measurement Message"
-CTP_success_message = "200 OK: Closing Connection"
-CTP_error_message = "404 ERROR: Invalid Connection Termination Message"
+CSP_success_message = "200 OK: Ready\n"
+CSP_error_message = "404 ERROR: Invalid Connection Setup Message\n"
+MP_error_message = "404 ERROR: Invalid Measurement Message\n"
+CTP_success_message = "200 OK: Closing Connection\n"
+CTP_error_message = "404 ERROR: Invalid Connection Termination Message\n"
 
 while True:
     clientsocket, address = s.accept()
     # CSP phase
-    CSP_message = clientsocket.recv(1024)
-    CSP_message = CSP_message.decode("utf-8")
+    CSP_message = loop_resv(clientsocket)
     CSP_arguments = CSP_message.split(" ")
     if len(CSP_arguments) != 5:
         clientsocket.send(bytes(CSP_error_message, "utf-8"))
@@ -34,14 +45,13 @@ while True:
     measurement_type = CSP_arguments[1]
     number_of_probes = CSP_arguments[2]
     message_size = CSP_arguments[3]
-    server_delay = CSP_arguments[4][0]
+    server_delay = CSP_arguments[4]
 
     if protocol_phase != 's' or \
         measurement_type not in ["rtt", "tput"] or \
             not number_of_probes.isnumeric() or \
                 not message_size.isnumeric() or \
-                    not server_delay.isnumeric() or\
-                        CSP_message[-1] != '\n':
+                    not server_delay.isnumeric():
         clientsocket.send(bytes(CSP_error_message, "utf-8"))
         clientsocket.close()
         continue
@@ -58,8 +68,7 @@ while True:
     mp_has_error = False
     for i in range(number_of_probes):
         time.sleep(server_delay)
-        MP_message_raw = clientsocket.recv(100 + message_size)
-        MP_message = MP_message_raw.decode("utf-8")
+        MP_message = loop_resv(clientsocket)
         MP_arguments = MP_message.split(" ")
         if len(MP_arguments) != 3:
             mp_has_error = True
@@ -76,7 +85,7 @@ while True:
                 payload[-1] != '\n':
             mp_has_error = True
             break
-        clientsocket.send(MP_message_raw)
+        clientsocket.send(bytes(MP_message + '\n', "utf-8"))
 
     if mp_has_error:
         clientsocket.send(bytes(MP_error_message, "utf-8"))
@@ -84,11 +93,9 @@ while True:
         continue
 
     # CTP phase
-    CTP_message = clientsocket.recv(1024)
-    CTP_message = CTP_message.decode("utf-8")
+    CTP_message = loop_resv(clientsocket)
     if len(CTP_message) != 2 or CTP_message[0] != 't' or CTP_message[1] != '\n':
         clientsocket.send(bytes(CTP_error_message, "utf-8"))
     else:
         clientsocket.send(bytes(CTP_success_message, "utf-8"))
     clientsocket.close()
-    continue
