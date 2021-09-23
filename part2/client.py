@@ -18,7 +18,7 @@ def test_rtt(s, number_of_probes, message_size, server_delay):
 
     # MP phase
     # TODO: delete testing prints
-    print("In CTP phase")
+    print("In MT phase")
     for i in range(number_of_probes):
         MP_message = "m " + str(i+1) + " " + ("1"*message_size) + "\n"
         s.send(bytes(MP_message, "utf-8"))

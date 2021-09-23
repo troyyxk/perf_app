@@ -40,7 +40,8 @@ while True:
         measurement_type not in ["rtt", "tput"] or \
             not number_of_probes.isnumeric() or \
                 not message_size.isnumeric() or \
-                    not server_delay.isnumeric():
+                    not server_delay.isnumeric() or\
+                        CSP_message[-1] != '\n':
         clientsocket.send(bytes(CSP_error_message, "utf-8"))
         clientsocket.close()
         continue
@@ -71,7 +72,8 @@ while True:
             break
         probe_sequence_number = int(probe_sequence_number)
         if protocol_phase != 'm' or \
-            probe_sequence_number != i + 1:
+            probe_sequence_number != i + 1 or \
+                payload[-1] != '\n':
             mp_has_error = True
             break
         clientsocket.send(MP_message_raw)
@@ -84,8 +86,7 @@ while True:
     # CTP phase
     CTP_message = clientsocket.recv(1024)
     CTP_message = CTP_message.decode("utf-8")
-    protocol_phase = CTP_message[0]
-    if protocol_phase != "t":
+    if len(CTP_message) != 2 or CTP_message[0] != 't' or CTP_message[1] != '\n':
         clientsocket.send(bytes(CTP_error_message, "utf-8"))
     else:
         clientsocket.send(bytes(CTP_success_message, "utf-8"))
