@@ -15,7 +15,7 @@ my_ip = sys.argv[1]
 my_port = int(sys.argv[2])
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((my_ip, my_port))
+s.connect((socket.gethostbyname(my_ip), my_port))
 
 test_message = "Part 1 test message"
 
