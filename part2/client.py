@@ -32,6 +32,7 @@ def test_rtt(s, number_of_probes, message_size, server_delay):
     # TODO: delete testing prints
     print("In MT phase")
     for i in range(number_of_probes):
+        print("TODO: ", i)
         MP_message = "m " + str(i+1) + " " + ("1"*message_size) + "\n"
         s.send(bytes(MP_message, "utf-8"))
         return_message = loop_resv(s)
@@ -74,5 +75,5 @@ my_port = int(sys.argv[2])
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((my_ip, my_port))
-test_rtt(s, 10, 5000, 0)
+test_rtt(s, 10, 100000, 0)
 
