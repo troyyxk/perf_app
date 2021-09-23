@@ -13,6 +13,7 @@ def test_rtt(s, number_of_probes, message_size, server_delay):
     # TODO: delete testing prints
     print("In CSP phase")
     print(return_message)
+    print(CSP_message)
     if return_message != "200 OK: Ready":
         return "error"
 
@@ -22,15 +23,15 @@ def test_rtt(s, number_of_probes, message_size, server_delay):
     for i in range(number_of_probes):
         MP_message = "m " + str(i+1) + " " + ("1"*message_size) + "\n"
         s.send(bytes(MP_message, "utf-8"))
-        return_message = s.recv(1024).decode("utf-8")
-        print(return_message)
+        return_message = s.recv(100 + message_size).decode("utf-8")
+        # print(return_message)
 
 
     # CTP phase
     print("In CTP phase")
     s.send(bytes("t\n", "utf-8"))
     return_message = s.recv(1024).decode("utf-8")
-    print(return_message)
+    # print(return_message)
     if return_message != "200 OK: Closing Connection":
         return "error"
     
@@ -62,5 +63,5 @@ my_port = int(sys.argv[2])
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((my_ip, my_port))
-test_rtt(s, 10, 1, 0)
+test_rtt(s, 10, 5000, 0)
 
