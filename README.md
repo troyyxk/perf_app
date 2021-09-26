@@ -12,4 +12,4 @@ python client.py pcvm2-8.geni.uchicago.edu 50000
 python client.py pcvm2-5.instageni.idre.ucla.edu 50000
 
 
-
+python client.py pcvm2-41.geni.it.cornell.edu 50000

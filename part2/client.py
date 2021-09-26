@@ -3,6 +3,7 @@
 import argparse
 import socket
 import sys
+import datetime
 
 def loop_resv(s):
     received_message = ""
@@ -15,7 +16,10 @@ def loop_resv(s):
     received_message = received_message.split('\n')[0]
     return received_message
 
-def test_rtt(s, number_of_probes, message_size, server_delay):
+def test_rtt( number_of_probes, message_size, server_delay):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((my_ip, my_port))
+
     time_durations = []
     # CSP phase
     CSP_message = "s rtt " + str(number_of_probes) + " " + str(message_size) + " " + str(server_delay) + "\n"
@@ -34,8 +38,11 @@ def test_rtt(s, number_of_probes, message_size, server_delay):
     for i in range(number_of_probes):
         print("TODO: ", i)
         MP_message = "m " + str(i+1) + " " + ("1"*message_size) + "\n"
+        a = datetime.datetime.now()
         s.send(bytes(MP_message, "utf-8"))
         return_message = loop_resv(s)
+        b = datetime.datetime.now()
+        time_durations.append((b-a).total_seconds()*1000)
         # print(return_message)
 
 
@@ -48,6 +55,7 @@ def test_rtt(s, number_of_probes, message_size, server_delay):
         return "error"
     
     print("close connection with no error")
+    s.close()
 
     return time_durations
     
@@ -55,7 +63,7 @@ def test_rtt(s, number_of_probes, message_size, server_delay):
 
 
 
-def test_tput(s, number_of_probes, message_size, server_delay):
+def test_tput( number_of_probes, message_size, server_delay):
     time_durations = []
     # CSP phase
     # MP phase
@@ -73,7 +81,13 @@ if len(sys.argv) != 3:
 my_ip = sys.argv[1]
 my_port = int(sys.argv[2])
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((my_ip, my_port))
-test_rtt(s, 10, 100000, 0)
+# rtt in ms
+rtt_1 = test_rtt( 10, 1, 0)
+rtt_100 = test_rtt( 10, 100, 0)
+rtt_200 = test_rtt( 10, 200, 0)
+rtt_400 = test_rtt( 10, 400, 0)
+rtt_800 = test_rtt( 10, 800, 0)
 
+print (sum(rtt_1)/10)
+print (sum(rtt_800)/10)
+# print(rtt_800)
