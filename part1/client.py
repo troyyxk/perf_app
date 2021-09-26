@@ -18,14 +18,23 @@ if len(sys.argv) != 3:
 my_ip = sys.argv[1]
 my_port = int(sys.argv[2])
 
-# connect
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((my_ip, my_port))
+# if there are socket error, it will be catched
+try:
+    # connect
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((my_ip, my_port))
 
-# send message
-test_message = "A"
-s.send(bytes(test_message, "utf-8"))
+    # send message
+    test_message = "A"
+    s.send(bytes(test_message, "utf-8"))
+    print("Message send: ", test_message)
 
-# receive message
-return_mesage = s.recv(1024)
-print(return_mesage.decode("utf-8"))
+    # receive message
+    return_message = s.recv(1024)
+    return_message = return_message.decode("utf-8")
+    print("Message received: ", return_message)
+except socket.error:
+    print("Socket error")
+    exit(1)
+finally:
+    s.close()
