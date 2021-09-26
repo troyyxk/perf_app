@@ -1,7 +1,6 @@
 # TODO: do we need to check \n
 import socket
 import sys
-from typing import Protocol
 import time
 
 
