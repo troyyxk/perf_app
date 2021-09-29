@@ -1,53 +1,27 @@
-# Definition for singly-linked list.
-class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
 class Solution:
-    def reorderList(self, head: ListNode) -> None:
-        """
-        Do not return anything, modify head in-place instead.
-        """
-        if head is None or head.next is None:
-            return
-        slow = head
-        fast = head
-        
-        # get slow to the middle
-        while fast.next and fast.next.next:
-            slow = slow.next
-            fast = fast.next.next
-        # get slow past middle to the first of the second half
-        tmp = slow
-        slow = slow.next
-        # cur the linked list
-        tmp.next = None
+    def uniqueLetterString(self, s: str) -> int:
+        l = len(s)
+        if l == 0:
+            return 0
+        score = [0] * l
+        score[0] = 1
 
-        # reverse second half
-        prev = None
-        nex = slow.next
-        while slow:
-            slow.next = prev
-            prev = slow
-            slow = nex
-            if (slow is not None):
-                nex = slow.next
-        
-        cur = head
-        second = slow
-        while slow:
-            second = slow.next
-            slow.next = cur.next
-            cur.next = slow
-            cur = slow.next
-            slow = second
+        occurance = {}
+        contribution = {}
+        occurance[s[0]] = 0
+        contribution[s[0]] = 1
 
+        for i in range(l):
+            if i == 0:
+               continue
+            cur_char = s[i]
+            if cur_char not in occurance:
+                score[i] = score[i-1] + (i + 1)
+                contribution[cur_char] = i+1
+                occurance[cur_char] = i
+            else:
+                score[i] = score[i-1] - (contribution[cur_char]) + (i - occurance[cur_char])
+                occurance[cur_char] = i
+                contribution[cur_char] = i - occurance[cur_char] + 1
 
-
-l4 = ListNode(1, None)
-l3 = ListNode(2, l4)
-l2 = ListNode(1, l3)
-l1 = ListNode(1, l2)
-
-s = Solution()
-print(s.isPalindrome(l1))
+        return sum(score)
