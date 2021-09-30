@@ -49,6 +49,22 @@ def test_rtt( number_of_probes, message_size, server_delay):
         time_durations.append((b-a).total_seconds())
         # print(return_message)
 
+        
+    # CTP phase
+    print("In CTP phase")
+    s.send(bytes("t\n", "utf-8"))
+    return_message = loop_resv(s)
+    # print(return_message)
+    if return_message != "200 OK: Closing Connection":
+        return "error"
+    
+    print("close connection with no error")
+    s.close()
+
+    return time_durations
+
+
+
 # send number_of_probes of data with size message_size, there might be server_delay, return the rtt
 def test_tput( number_of_probes, message_size, server_delay):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
