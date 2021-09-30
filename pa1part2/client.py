@@ -21,93 +21,106 @@ def loop_resv(s):
 
 # send number_of_probes of data with size message_size, there might be server_delay, return the rtt
 def test_rtt( number_of_probes, message_size, server_delay):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((my_ip, my_port))
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((my_ip, my_port))
 
-    time_durations = []
-    # CSP phase
-    CSP_message = "s rtt " + str(number_of_probes) + " " + str(message_size) + " " + str(server_delay) + "\n"
-    s.send(bytes(CSP_message, "utf-8"))
-    return_message = loop_resv(s)
-    # TODO: delete testing prints
-    print("In CSP phase")
-    # print(return_message)
-    # print(CSP_message)
-    if return_message != "200 OK: Ready":
-        return "error"
-
-    # MP phase
-    # TODO: delete testing prints
-    print("In MT phase")
-    for i in range(number_of_probes):
-        # print("TODO: ", i)
-        MP_message = "m " + str(i+1) + " " + ("1"*message_size) + "\n"
-        a = datetime.datetime.now()
-        s.send(bytes(MP_message, "utf-8"))
+        time_durations = []
+        # CSP phase
+        CSP_message = "s rtt " + str(number_of_probes) + " " + str(message_size) + " " + str(server_delay) + "\n"
+        s.send(bytes(CSP_message, "utf-8"))
         return_message = loop_resv(s)
-        b = datetime.datetime.now()
-        time_durations.append((b-a).total_seconds())
+        # TODO: delete testing prints
+        print("In CSP phase")
         # print(return_message)
+        # print(CSP_message)
+        if return_message != "200 OK: Ready":
+            return "error"
 
+        # MP phase
+        # TODO: delete testing prints
+        print("In MT phase")
+        for i in range(number_of_probes):
+            # print("TODO: ", i)
+            MP_message = "m " + str(i+1) + " " + ("1"*message_size) + "\n"
+            a = datetime.datetime.now()
+            s.send(bytes(MP_message, "utf-8"))
+            return_message = loop_resv(s)
+            b = datetime.datetime.now()
+            time_durations.append((b-a).total_seconds())
+            # print(return_message)
+
+            
+        # CTP phase
+        print("In CTP phase")
+        s.send(bytes("t\n", "utf-8"))
+        return_message = loop_resv(s)
+        # print(return_message)
+        if return_message != "200 OK: Closing Connection":
+            return "error"
         
-    # CTP phase
-    print("In CTP phase")
-    s.send(bytes("t\n", "utf-8"))
-    return_message = loop_resv(s)
-    # print(return_message)
-    if return_message != "200 OK: Closing Connection":
-        return "error"
-    
-    print("close connection with no error")
-    s.close()
+        print("close connection with no error")
+        s.close()
 
-    return time_durations
+        return time_durations
+    except socket.error:
+        print("Socket error")
+        exit(1)
+    finally:
+        s.close()
 
 
 
 # send number_of_probes of data with size message_size, there might be server_delay, return the rtt
 def test_tput( number_of_probes, message_size, server_delay):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((my_ip, my_port))
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((my_ip, my_port))
 
-    time_durations = []
-    # CSP phase
-    CSP_message = "s tput " + str(number_of_probes) + " " + str(message_size) + " " + str(server_delay) + "\n"
-    s.send(bytes(CSP_message, "utf-8"))
-    return_message = loop_resv(s)
-    # TODO: delete testing prints
-    print("In CSP phase")
-    # print(return_message)
-    # print(CSP_message)
-    if return_message != "200 OK: Ready":
-        return "error"
-
-    # MP phase
-    # TODO: delete testing prints
-    print("In MT phase")
-    for i in range(number_of_probes):
-        # print("TODO: ", i)
-        MP_message = "m " + str(i+1) + " " + ("1"*message_size) + "\n"
-        a = datetime.datetime.now()
-        s.send(bytes(MP_message, "utf-8"))
+        time_durations = []
+        # CSP phase
+        CSP_message = "s tput " + str(number_of_probes) + " " + str(message_size) + " " + str(server_delay) + "\n"
+        s.send(bytes(CSP_message, "utf-8"))
         return_message = loop_resv(s)
-        b = datetime.datetime.now()
-        time_durations.append((b-a).total_seconds())
+        # TODO: delete testing prints
+        print("In CSP phase")
         # print(return_message)
+        # print(CSP_message)
+        if return_message != "200 OK: Ready":
+            return "error"
+
+        # MP phase
+        # TODO: delete testing prints
+        print("In MT phase")
+        for i in range(number_of_probes):
+            # print("TODO: ", i)
+            MP_message = "m " + str(i+1) + " " + ("1"*message_size) + "\n"
+            a = datetime.datetime.now()
+            s.send(bytes(MP_message, "utf-8"))
+            return_message = loop_resv(s)
+            b = datetime.datetime.now()
+            time_durations.append((b-a).total_seconds())
+            # print(return_message)
 
 
-    # CTP phase
-    print("In CTP phase")
-    s.send(bytes("t\n", "utf-8"))
-    return_message = loop_resv(s)
-    # print(return_message)
-    if return_message != "200 OK: Closing Connection":
-        return "error"
-    
-    print("close connection with no error")
-    s.close()
+        # CTP phase
+        print("In CTP phase")
+        s.send(bytes("t\n", "utf-8"))
+        return_message = loop_resv(s)
+        # print(return_message)
+        if return_message != "200 OK: Closing Connection":
+            return "error"
+        
+        print("close connection with no error")
+        s.close()
 
-    return time_durations
+        return time_durations
+    except socket.error:
+        print("Socket error")
+        exit(1)
+    finally:
+        s.close()
+
     
 
 print(sys.argv)
